@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--筛选器-->
-    <declare-styleable name="MultipleMenu">
+    <declare-styleable name="DropDownMenu">
         <attr name="ddunderlineColor" format="color" />
         <attr name="dddividerColor" format="color" />
         <attr name="ddtextSelectedColor" format="color" />
@@ -15,6 +15,10 @@
         <attr name="ddmenuTabTopPadding" format="dimension"/>
         <attr name="ddmenuTabRightPadding" format="dimension"/>
         <attr name="ddmenuTabBottomPadding" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="MultipleMenu">
+
     </declare-styleable>
 
 </resources>

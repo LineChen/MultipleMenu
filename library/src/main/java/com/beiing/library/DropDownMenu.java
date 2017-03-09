@@ -1,25 +1,19 @@
-package com.beiing.baseframe.widgets;
+package com.beiing.library;
 
-import android.animation.Animator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.beiing.baseframe.R;
 
 import java.util.List;
 
@@ -27,7 +21,7 @@ import java.util.List;
 /**
  * 筛选器
  */
-public class MultipleMenu extends LinearLayout {
+public class DropDownMenu extends LinearLayout {
 
     //顶部菜单布局
     private LinearLayout tabMenuView;
@@ -115,13 +109,7 @@ public class MultipleMenu extends LinearLayout {
 
     }
 
-    /**
-     * 初始化DropDownMenu
-     *
-     * @param tabTexts
-     * @param popupViews
-     * @param contentView
-     */
+
     public void setDropDownMenu(@NonNull List<String> tabTexts, @NonNull List<View> popupViews, @NonNull View contentView) {
         if (tabTexts.size() != popupViews.size()) {
             throw new IllegalArgumentException("params not match, tabTexts.size() should be equal popupViews.size()");
@@ -233,11 +221,7 @@ public class MultipleMenu extends LinearLayout {
 
     }
 
-    /**
-     * DropDownMenu是否处于可见状态
-     *
-     * @return
-     */
+
     public boolean isShowing() {
         return current_tab_position != -1;
     }
