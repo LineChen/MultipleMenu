@@ -1,19 +1,25 @@
 package com.beiing.library;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,19 +28,44 @@ import java.util.List;
  * </br>
  */
 
-public class MultipleMenu extends LinearLayout {
+public class MultipleMenu extends LinearLayout implements View.OnClickListener {
 
+    /**
+     * tab所在layout
+     */
     LinearLayout tabHolderView;
 
+    /**
+     * menu所在layout
+     */
     FrameLayout menuHolderView;
 
+    /**
+     * tab下划线
+     */
     View underLineView;
 
+    /**
+     * 菜单下部阴影
+     */
     View maskView;
 
+    /**
+     * 属性
+     */
     Config config;
 
-    List<MenuPage> menuPages;
+    /**
+     * tab集合
+     */
+    List<View> tabList;
+
+    final static int INVALID_POSITION = -1;
+
+    /**
+     * 当前打开的菜单位置
+     */
+    int currentPosition = INVALID_POSITION;
 
     public MultipleMenu(Context context) {
         this(context, null, 0);
@@ -54,22 +85,37 @@ public class MultipleMenu extends LinearLayout {
     }
 
     private void initAttrs(Context context, @Nullable AttributeSet attrs) {
+        config = new Config();
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MultipleMenu);
         try {
-
+            config.tabHolderHeight = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_tabHolderHeight, dp2px(48));
+            config.underLineHeight = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_underLineHeight, dp2px(0.6f));
+            config.underLineColor = ta.getColor(R.styleable.MultipleMenu_mm_underLineColor, 0xffe0e0e0);
+            config.tabTitleDefaultColor = ta.getColor(R.styleable.MultipleMenu_mm_tabTitleDefaultColor, 0xff252525);
+            config.tabTitletSelectedColor = ta.getColor(R.styleable.MultipleMenu_mm_tabTitletSelectedColor, 0xff5da6f0);
+            config.tabTitleDefaultSize = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_tabTitleDefaultSize, 14);
+            config.tabTitleSelectedSize = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_tabTitleSelectedSize, 14);
+            config.tabIconDefault = ta.getResourceId(R.styleable.MultipleMenu_mm_tabIconDefault, R.mipmap.tab_icon_default);
+            config.tabIconSelected = ta.getResourceId(R.styleable.MultipleMenu_mm_tabIconSelected, R.mipmap.tab_icon_selected);
+            config.tabIconLeftmargin = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_tabIconLeftmargin, dp2px(6));
+            config.dividerWidth = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_dividerWidth, dp2px(0.6f));
+            config.dividerTopmargin = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_dividerTopmargin, dp2px(8));
+            config.dividerBottommargin = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_dividerBottommargin, dp2px(8));
+            config.dividerColor = ta.getColor(R.styleable.MultipleMenu_mm_dividerColor, 0xffe0e0e0);
+            config.maskColor = ta.getColor(R.styleable.MultipleMenu_mm_maskColor, 0x40000000);
+            config.menuAnimateIn = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateIn, R.anim.scale_in);
+            config.menuAnimateOut = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateOut, R.anim.scale_out);
         } finally {
             ta.recycle();
         }
-
-        config = new Config();
     }
 
     private void initView(Context context) {
-
         //初始化view
         tabHolderView = new LinearLayout(context);
         tabHolderView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, config.tabHolderHeight));
         tabHolderView.setOrientation(HORIZONTAL);
+        tabHolderView.setGravity(Gravity.CENTER);
 
         underLineView = new View(context);
         underLineView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, config.underLineHeight));
@@ -85,37 +131,50 @@ public class MultipleMenu extends LinearLayout {
 
         maskView = new View(context);
         maskView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        maskView.setBackgroundColor(config.maskColor);
     }
 
     public void setMultipleMenu(List<MenuPage> menuPages){
         if(menuPages.isEmpty()) return;
-        this.menuPages = menuPages;
+
+        tabList = new ArrayList<>(menuPages.size());
+
+        maskView.setOnClickListener(this);
+        menuHolderView.addView(maskView);
+
         LayoutInflater inflater = LayoutInflater.from(getContext());
         for (int i = 0, size = menuPages.size(); i < size; i++) {
             MenuPage mp = menuPages.get(i);
-            addTab(mp.getMenuTitle(), inflater);
+            addTab(mp.getMenuTitle(), inflater, i);
             if(i != size - 1){
                 addDivider();
             }
             addMenuView(mp.getMenuView());
         }
 
-        menuHolderView.addView(maskView);
+        maskView.setVisibility(GONE);
+        menuHolderView.setVisibility(GONE);
     }
 
-    private void addTab(String menuTitle, LayoutInflater inflater) {
+    private void addTab(String menuTitle, LayoutInflater inflater, int position) {
         View itemTab = inflater.inflate(R.layout.item_tab_layout, tabHolderView, false);
-        TextView tvTitle = (TextView) itemTab.findViewById(R.id.tv_tab_title);
-        ImageView tvIcon = (ImageView) itemTab.findViewById(R.id.iv_tab_icon);
-        tvTitle.setText(menuTitle);
-        tvTitle.setTextAppearance(getContext(), config.tabTextAppearance);
-        tvIcon.setImageResource(config.tabIconDefault);
+        ItemTabHolder itemTabHolder = new ItemTabHolder(itemTab, position);
+        itemTabHolder.setTitleText(menuTitle)
+                .setTitleTextSize(config.tabTitleDefaultSize)
+                .setTitleTextColor(config.tabTitleDefaultColor)
+                .setIconResource(config.tabIconDefault);
+        final LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = config.tabIconLeftmargin;
+        itemTabHolder.tvIcon.setLayoutParams(lp);
+        itemTab.setTag(itemTabHolder);
+        itemTab.setOnClickListener(this);
         tabHolderView.addView(itemTab);
+        tabList.add(itemTab);
     }
 
     private void addDivider() {
         View view = new View(getContext());
-        LayoutParams params = new LayoutParams(config.dividerWidth, ViewGroup.LayoutParams.MATCH_PARENT);
+        final LayoutParams params = new LayoutParams(config.dividerWidth, ViewGroup.LayoutParams.MATCH_PARENT);
         params.topMargin = config.dividerTopmargin;
         params.bottomMargin = config.dividerBottommargin;
         view.setLayoutParams(params);
@@ -124,7 +183,105 @@ public class MultipleMenu extends LinearLayout {
     }
 
     private void addMenuView(View menuView) {
+        menuView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        menuView.setVisibility(GONE);
         menuHolderView.addView(menuView);
+    }
+
+
+    public void setConfig(Config config) {
+        this.config = config;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v == maskView){
+            closeMenu();
+        } else {
+            switchMenu(v);
+        }
+    }
+
+    /**
+     * 关闭菜单
+     */
+    public void closeMenu() {
+        if(currentPosition != INVALID_POSITION){
+            //tab状态改变
+            View itemTab = tabList.get(currentPosition);
+            ItemTabHolder itemHolder = (ItemTabHolder) itemTab.getTag();
+            if (itemHolder != null) {
+                itemHolder.setTitleTextSize(config.tabTitleDefaultSize)
+                            .setTitleTextColor(config.tabTitleDefaultColor)
+                            .setIconResource(config.tabIconDefault);
+
+                //icon动画
+                itemHolder.tvIcon.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.rotate_down));
+            }
+
+            //动画退出
+            final View menuView = menuHolderView.getChildAt(currentPosition + 1);
+            Animation scaleOut = AnimationUtils.loadAnimation(getContext(), config.menuAnimateOut);
+            scaleOut.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    menuView.setVisibility(GONE);
+                    maskView.setVisibility(GONE);
+                    menuHolderView.setVisibility(GONE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+
+            menuHolderView.startAnimation(scaleOut);
+            currentPosition = INVALID_POSITION;
+        }
+    }
+
+    /**
+     * 打开指定位置menu
+     * @param position
+     */
+    private void openMenu(int position) {
+        View itemTab = tabList.get(position);
+        ItemTabHolder itemHolder = (ItemTabHolder) itemTab.getTag();
+        if (itemHolder != null) {
+            itemHolder.setTitleTextSize(config.tabTitleSelectedSize)
+                    .setTitleTextColor(config.tabTitletSelectedColor)
+                    .setIconResource(config.tabIconSelected);
+
+            //icon动画
+            itemHolder.tvIcon.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.rotate_up));
+        }
+
+        //动画进入
+        menuHolderView.setVisibility(VISIBLE);
+        maskView.setVisibility(VISIBLE);
+        menuHolderView.getChildAt(position + 1).setVisibility(VISIBLE);
+        menuHolderView.startAnimation(AnimationUtils.loadAnimation(getContext(), config.menuAnimateIn));
+        currentPosition = position;
+    }
+
+    /**
+     * 切换menu
+     * @param selectV
+     */
+    private void switchMenu(View selectV){
+        ItemTabHolder itemHolder = (ItemTabHolder) selectV.getTag();
+        if(itemHolder.position == currentPosition){
+            closeMenu();
+        } else {
+            closeMenu();
+            openMenu(itemHolder.position);
+        }
     }
 
     public int dp2px(float value) {
@@ -132,61 +289,196 @@ public class MultipleMenu extends LinearLayout {
         return (int) (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, dm) + 0.5);
     }
 
-    public void setConfig(Config config) {
-        this.config = config;
+    public int sp2px(float value) {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        return (int) (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, dm) + 0.5);
     }
+
 
     private class Config{
         /**
          * tab所在layout高度,必填
          */
-        int tabHolderHeight = dp2px(30);
+        int tabHolderHeight;
 
         /**
          * tablayout底部线条
          */
-        int underLineHeight = dp2px(0.6f);
+        int underLineHeight;
 
         /**
          * tablayout底部线条颜色
          */
-        int underLineColor = 0xe0e0e0;
+        int underLineColor;
 
         /**
-         * tabTitle样式
+         * tab默认颜色
          */
-        int tabTextAppearance = R.style.TabTextAppearance;
+        int tabTitleDefaultColor;
 
         /**
-         * title icon
+         * tab选中颜色
          */
-        int tabIconDefault = R.mipmap.tab_icon_default;
+        int tabTitletSelectedColor;
+
+        /**
+         * tab默认字体大小
+         */
+        int tabTitleDefaultSize;
+
+        /**
+         * tab选中大小
+         */
+        int tabTitleSelectedSize;
+
+        /**
+         * tab未选中时icon
+         */
+        int tabIconDefault;
+
+        /**
+         * tab选中时icon
+         */
+        int tabIconSelected;
+
+        /**
+         * icon左边距
+         */
+        int tabIconLeftmargin;
 
         /**
          * tab 间隔线宽度
          */
-        int dividerWidth = dp2px(0.6f);
+        int dividerWidth;
 
         /**
          * tab 间隔线上边距
          */
-        int dividerTopmargin = dp2px(8);
+        int dividerTopmargin;
 
         /**
          * tab 间隔线下边距
          */
-        int dividerBottommargin = dp2px(8);
+        int dividerBottommargin;
 
         /**
          * tab 间隔线颜色
          */
-        int dividerColor = 0x8d8d8d;
+        int dividerColor;
 
+        /**
+         * 阴影颜色
+         */
+        int maskColor;
+
+        /**
+         * menu进入动画
+         */
+        int menuAnimateIn;
+
+        /**
+         * menu退出动画
+         */
+        int menuAnimateOut;
+
+
+        public Config setTabHolderHeight(int tabHolderHeight) {
+            this.tabHolderHeight = tabHolderHeight;
+            return this;
+        }
+
+        public Config setUnderLineHeight(int underLineHeight) {
+            this.underLineHeight = underLineHeight;
+            return this;
+        }
+
+        public Config setUnderLineColor(int underLineColor) {
+            this.underLineColor = underLineColor;
+            return this;
+        }
+
+        public Config setTabTitleDefaultColor(int tabTitleDefaultColor) {
+            this.tabTitleDefaultColor = tabTitleDefaultColor;
+            return this;
+        }
+
+        public Config setTabTitletSelectedColor(int tabTitletSelectedColor) {
+            this.tabTitletSelectedColor = tabTitletSelectedColor;
+            return this;
+        }
+
+        public Config setTabTitleDefaultSize(int tabTitleDefaultSize) {
+            this.tabTitleDefaultSize = tabTitleDefaultSize;
+            return this;
+        }
+
+        public Config setTabTitleSelectedSize(int tabTitleSelectedSize) {
+            this.tabTitleSelectedSize = tabTitleSelectedSize;
+            return this;
+        }
+
+        public Config setTabIconDefault(int tabIconDefault) {
+            this.tabIconDefault = tabIconDefault;
+            return this;
+        }
+
+        public Config setTabIconSelected(int tabIconSelected) {
+            this.tabIconSelected = tabIconSelected;
+            return this;
+        }
+
+        public Config setTabIconLeftmargin(int tabIconLeftmargin) {
+            this.tabIconLeftmargin = tabIconLeftmargin;
+            return this;
+        }
+
+        public Config setDividerWidth(int dividerWidth) {
+            this.dividerWidth = dividerWidth;
+            return this;
+        }
+
+        public Config setDividerTopmargin(int dividerTopmargin) {
+            this.dividerTopmargin = dividerTopmargin;
+            return this;
+        }
+
+        public Config setDividerBottommargin(int dividerBottommargin) {
+            this.dividerBottommargin = dividerBottommargin;
+            return this;
+        }
+
+        public Config setDividerColor(int dividerColor) {
+            this.dividerColor = dividerColor;
+            return this;
+        }
+
+        public Config setMaskColor(int maskColor) {
+            this.maskColor = maskColor;
+            return this;
+        }
+
+        public Config setMenuAnimateIn(int menuAnimateIn) {
+            this.menuAnimateIn = menuAnimateIn;
+            return this;
+        }
+
+        public Config setMenuAnimateOut(int menuAnimateOut) {
+            this.menuAnimateOut = menuAnimateOut;
+            return this;
+        }
     }
 
     public static class MenuPage{
         private String menuTitle;
         private View menuView;
+
+        public MenuPage(String menuTitle, View menuView) {
+            this.menuTitle = menuTitle;
+            this.menuView = menuView;
+        }
+
+        public MenuPage() {
+        }
 
         public String getMenuTitle() {
             return menuTitle;
@@ -204,5 +496,39 @@ public class MultipleMenu extends LinearLayout {
             this.menuView = menuView;
         }
     }
+
+    private class ItemTabHolder{
+        TextView tvTitle;
+        ImageView tvIcon;
+        int position;
+
+        ItemTabHolder(View layout, int position){
+            tvTitle = (TextView) layout.findViewById(R.id.tv_tab_title);
+            tvIcon = (ImageView) layout.findViewById(R.id.iv_tab_icon);
+            this.position = position;
+        }
+
+        ItemTabHolder setTitleText(String text){
+            tvTitle.setText(text);
+            return this;
+        }
+
+        ItemTabHolder setTitleTextColor(int color){
+            tvTitle.setTextColor(color);
+            return this;
+        }
+
+        ItemTabHolder setTitleTextSize(int size){
+            tvTitle.setTextSize(size);
+            return this;
+        }
+
+        ItemTabHolder setIconResource(int res){
+            tvIcon.setImageResource(res);
+            return this;
+        }
+
+    }
+
 
 }

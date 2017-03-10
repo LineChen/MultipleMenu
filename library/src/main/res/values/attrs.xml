@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--筛选器-->
-    <declare-styleable name="DropDownMenu">
-        <attr name="ddunderlineColor" format="color" />
-        <attr name="dddividerColor" format="color" />
-        <attr name="ddtextSelectedColor" format="color" />
-        <attr name="ddtextUnselectedColor" format="color" />
-        <attr name="ddmenuBackgroundColor" format="color" />
-        <attr name="ddmaskColor" format="color" />
-        <attr name="ddmenuTextSize" format="dimension" />
-        <attr name="ddmenuSelectedIcon" format="reference" />
-        <attr name="ddmenuUnselectedIcon" format="reference" />
-        <attr name="ddmenuTabLeftPadding" format="dimension"/>
-        <attr name="ddmenuTabTopPadding" format="dimension"/>
-        <attr name="ddmenuTabRightPadding" format="dimension"/>
-        <attr name="ddmenuTabBottomPadding" format="dimension"/>
-    </declare-styleable>
-
+    <!--多选菜单-->
     <declare-styleable name="MultipleMenu">
-
+        <attr name="mm_tabHolderHeight" format="dimension"/>
+        <attr name="mm_underLineHeight" format="dimension"/>
+        <attr name="mm_underLineColor" format="color"/>
+        <attr name="mm_tabTitleDefaultColor" format="color"/>
+        <attr name="mm_tabTitletSelectedColor" format="color"/>
+        <attr name="mm_tabTitleDefaultSize" format="dimension"/>
+        <attr name="mm_tabTitleSelectedSize" format="dimension"/>
+        <attr name="mm_tabIconDefault" format="reference"/>
+        <attr name="mm_tabIconSelected" format="reference"/>
+        <attr name="mm_tabIconLeftmargin" format="dimension"/>
+        <attr name="mm_dividerWidth" format="dimension"/>
+        <attr name="mm_dividerTopmargin" format="dimension"/>
+        <attr name="mm_dividerBottommargin" format="dimension"/>
+        <attr name="mm_dividerColor" format="color"/>
+        <attr name="mm_maskColor" format="color"/>
+        <attr name="mm_menuAnimateIn" format="reference"/>
+        <attr name="mm_menuAnimateOut" format="reference"/>
     </declare-styleable>
 
 </resources>
