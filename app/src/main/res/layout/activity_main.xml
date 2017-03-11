@@ -1,23 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.beiing.multiplemenu.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.beiing.library.MultipleMenu
+    <com.linechen.multiplemenu.MultipleMenu
         android:id="@+id/multiple_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:mm_tabHolderHeight="50dp"
+        app:mm_underLineHeight="2dp"
+        app:mm_underLineColor="#FF09A63B"
+        app:mm_tabTitleDefaultColor="#FF09A63B"
+        app:mm_tabTitletSelectedColor="#dc0f57"
+        app:mm_tabTitleDefaultSize="15sp"
+        app:mm_tabTitleSelectedSize="16sp"
+        app:mm_tabIconDefault="@mipmap/ic_default"
+        app:mm_tabIconSelected="@mipmap/ic_selected"
+        app:mm_tabIconLeftmargin="10dp"
+        app:mm_dividerWidth="1dp"
+        app:mm_dividerTopmargin="10dp"
+        app:mm_dividerBottommargin="10dp"
+        app:mm_dividerColor="#882DB91B"
+        app:mm_maskColor="#88f20409"
+        app:mm_menuAnimateIn="@anim/scale_in"
+        app:mm_menuAnimateOut="@anim/scale_out"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="48dp"
-            android:gravity="center"
-            android:textSize="20dp"
-            android:text="多选菜单"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:text="多选菜单"/>
 
 
 </FrameLayout>
