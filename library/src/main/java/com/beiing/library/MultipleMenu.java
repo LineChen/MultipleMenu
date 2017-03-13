@@ -3,6 +3,8 @@ package com.beiing.library;
 import android.animation.Animator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,39 +36,44 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
     /**
      * tab所在layout
      */
-    LinearLayout tabHolderView;
+    private LinearLayout tabHolderView;
 
     /**
      * menu所在layout
      */
-    FrameLayout menuHolderView;
-
-    /**
-     * tab下划线
-     */
-    View underLineView;
+    private FrameLayout menuHolderView;
 
     /**
      * 菜单下部阴影
      */
-    View maskView;
+    private View maskView;
 
     /**
      * 属性
      */
-    Config config;
+    private Config config;
 
     /**
      * tab集合
      */
-    List<View> tabList;
+    private List<View> tabList;
 
-    final static int INVALID_POSITION = -1;
+    /**
+     * menu: tabtitle和对应view
+     */
+    private List<MenuPage> menuPages;
+
+    private final static int INVALID_POSITION = -1;
 
     /**
      * 当前打开的菜单位置
      */
-    int currentPosition = INVALID_POSITION;
+    private int currentPosition = INVALID_POSITION;
+
+    private Animation iconOutAnimation;
+    private Animation iconInAnimation;
+    private Animation menuOutAnimation;
+    private Animation menuInAnimation;
 
     public MultipleMenu(Context context) {
         this(context, null, 0);
@@ -82,6 +90,8 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         initAttrs(context, attrs);
 
         initView(context);
+
+        initAnimation(context);
     }
 
     private void initAttrs(Context context, @Nullable AttributeSet attrs) {
@@ -117,7 +127,7 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         tabHolderView.setOrientation(HORIZONTAL);
         tabHolderView.setGravity(Gravity.CENTER);
 
-        underLineView = new View(context);
+        View underLineView = new View(context);
         underLineView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, config.underLineHeight));
         underLineView.setBackgroundColor(config.underLineColor);
 
@@ -134,9 +144,17 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         maskView.setBackgroundColor(config.maskColor);
     }
 
+    private void initAnimation(Context context) {
+        iconInAnimation = AnimationUtils.loadAnimation(context, R.anim.rotate_up);
+        iconOutAnimation = AnimationUtils.loadAnimation(context, R.anim.rotate_down);
+        menuInAnimation = AnimationUtils.loadAnimation(context, config.menuAnimateIn);
+        menuOutAnimation = AnimationUtils.loadAnimation(context, config.menuAnimateOut);
+    }
+
     public void setMultipleMenu(List<MenuPage> menuPages){
         if(menuPages.isEmpty()) return;
 
+        this.menuPages = menuPages;
         tabList = new ArrayList<>(menuPages.size());
 
         maskView.setOnClickListener(this);
@@ -189,10 +207,6 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
     }
 
 
-    public void setConfig(Config config) {
-        this.config = config;
-    }
-
     @Override
     public void onClick(View v) {
         if(v == maskView){
@@ -216,13 +230,12 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
                             .setIconResource(config.tabIconDefault);
 
                 //icon动画
-                itemHolder.tvIcon.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.rotate_down));
+                itemHolder.tvIcon.startAnimation(iconOutAnimation);
             }
 
             //动画退出
             final View menuView = menuHolderView.getChildAt(currentPosition + 1);
-            Animation scaleOut = AnimationUtils.loadAnimation(getContext(), config.menuAnimateOut);
-            scaleOut.setAnimationListener(new Animation.AnimationListener() {
+            menuOutAnimation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
 
@@ -241,7 +254,7 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
                 }
             });
 
-            menuHolderView.startAnimation(scaleOut);
+            menuHolderView.startAnimation(menuOutAnimation);
             currentPosition = INVALID_POSITION;
         }
     }
@@ -259,14 +272,19 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
                     .setIconResource(config.tabIconSelected);
 
             //icon动画
-            itemHolder.tvIcon.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.rotate_up));
+            itemHolder.tvIcon.startAnimation(iconInAnimation);
+        }
+
+        for (MenuPage page :
+                menuPages) {
+            page.getMenuView().setVisibility(GONE);
         }
 
         //动画进入
         menuHolderView.setVisibility(VISIBLE);
         maskView.setVisibility(VISIBLE);
         menuHolderView.getChildAt(position + 1).setVisibility(VISIBLE);
-        menuHolderView.startAnimation(AnimationUtils.loadAnimation(getContext(), config.menuAnimateIn));
+        menuHolderView.startAnimation(menuInAnimation);
         currentPosition = position;
     }
 
@@ -284,16 +302,28 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         }
     }
 
+    public void setTabTitle(String text){
+        if(currentPosition != INVALID_POSITION){
+            setTbaTitle(currentPosition, text);
+        }
+    }
+
+    public void setTbaTitle(int position, String text){
+        if(position >= 0 && position < tabList.size()){
+            View itemTab = tabList.get(currentPosition);
+            ItemTabHolder itemHolder = (ItemTabHolder) itemTab.getTag();
+            if (itemHolder != null) {
+                itemHolder.setTitleText(text);
+            }
+        } else {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
     public int dp2px(float value) {
         DisplayMetrics dm = getResources().getDisplayMetrics();
         return (int) (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, dm) + 0.5);
     }
-
-    public int sp2px(float value) {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        return (int) (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, dm) + 0.5);
-    }
-
 
     private class Config{
         /**
@@ -380,7 +410,6 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
          * menu退出动画
          */
         int menuAnimateOut;
-
 
         public Config setTabHolderHeight(int tabHolderHeight) {
             this.tabHolderHeight = tabHolderHeight;
@@ -519,7 +548,7 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         }
 
         ItemTabHolder setTitleTextSize(int size){
-            tvTitle.setTextSize(size);
+            tvTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
             return this;
         }
 

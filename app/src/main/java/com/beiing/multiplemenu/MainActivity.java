@@ -4,6 +4,8 @@ import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ListViewCompat;
+import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -11,6 +13,7 @@ import com.beiing.library.MultipleMenu;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,5 +51,4 @@ public class MainActivity extends AppCompatActivity {
         menuPages.add(new MultipleMenu.MenuPage("价格", priceMenu));
         return menuPages;
     }
-
 }
