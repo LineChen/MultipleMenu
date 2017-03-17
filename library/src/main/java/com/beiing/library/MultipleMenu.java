@@ -1,12 +1,8 @@
 package com.beiing.library;
 
-import android.animation.Animator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -21,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.lang.ref.WeakReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
