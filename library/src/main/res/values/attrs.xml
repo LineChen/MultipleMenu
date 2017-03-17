@@ -3,6 +3,7 @@
     <!--多选菜单-->
     <declare-styleable name="MultipleMenu">
         <attr name="mm_tabHolderHeight" format="dimension"/>
+        <attr name="mm_tabHolderColor" format="color"/>
         <attr name="mm_underLineHeight" format="dimension"/>
         <attr name="mm_underLineColor" format="color"/>
         <attr name="mm_tabTitleDefaultColor" format="color"/>

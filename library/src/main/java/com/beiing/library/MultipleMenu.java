@@ -99,6 +99,7 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MultipleMenu);
         try {
             config.tabHolderHeight = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_tabHolderHeight, dp2px(48));
+            config.tabHolderColor = ta.getColor(R.styleable.MultipleMenu_mm_tabHolderColor, 0xffffffff);
             config.underLineHeight = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_underLineHeight, dp2px(0.6f));
             config.underLineColor = ta.getColor(R.styleable.MultipleMenu_mm_underLineColor, 0xffe0e0e0);
             config.tabTitleDefaultColor = ta.getColor(R.styleable.MultipleMenu_mm_tabTitleDefaultColor, 0xff252525);
@@ -126,6 +127,7 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         tabHolderView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, config.tabHolderHeight));
         tabHolderView.setOrientation(HORIZONTAL);
         tabHolderView.setGravity(Gravity.CENTER);
+        tabHolderView.setBackgroundColor(config.tabHolderColor);
 
         View underLineView = new View(context);
         underLineView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, config.underLineHeight));
@@ -332,6 +334,11 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         int tabHolderHeight;
 
         /**
+         * tablayout背景色
+         */
+        int tabHolderColor;
+
+        /**
          * tablayout底部线条
          */
         int underLineHeight;
@@ -410,6 +417,11 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
          * menu退出动画
          */
         int menuAnimateOut;
+
+        public Config setTabHolderColor(int tabHolderColor) {
+            this.tabHolderColor = tabHolderColor;
+            return this;
+        }
 
         public Config setTabHolderHeight(int tabHolderHeight) {
             this.tabHolderHeight = tabHolderHeight;
