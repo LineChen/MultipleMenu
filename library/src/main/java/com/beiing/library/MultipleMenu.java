@@ -345,12 +345,12 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         int underLineColor;
 
         /**
-         * tab默认颜色
+         * tabtitle默认颜色
          */
         int tabTitleDefaultColor;
 
         /**
-         * tab选中颜色
+         * tabtitle选中颜色
          */
         int tabTitletSelectedColor;
 
