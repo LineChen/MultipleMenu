@@ -1,8 +1,9 @@
 # MultipleMenu
 
 
-###效果图
-![imagge](http://)
+### 效果图
+
+![imagge](https://github.com/LineChen/MultipleMenu/blob/master/multiple_menu.gif)
 
 ### 自定义属性
 
@@ -28,7 +29,7 @@
 |    mm_menuAnimateOut    |   menu退出动画   |	  R.anim.scale_out  |
 
 
-###使用
+### 使用
 
 ####注意：menu_layout和content_view的父控件使用FrameLayout或RelativeLayout，content_view设置topmargin为menu_layout的高度。
 
@@ -83,6 +84,7 @@
 ```
 
 代码：
+
 ```java
 
 private List<MultipleMenu.MenuPage> initMenuPages(){
@@ -115,7 +117,8 @@ multipleMenu.setMultipleMenu(initMenuPages());
 
 ```
 
-####其他方法
+##### 其他方法
+
 `closeMenu();` : 关闭当前打开菜单
 `setTabTitle(String text)`：设置当前打开菜单tabtitle
 `setTbaTitle(int position, String text)`:设置指定位置tabtitle
