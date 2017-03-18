@@ -31,7 +31,8 @@
 
 ### 使用
 
-####注意：menu_layout和content_view的父控件使用FrameLayout或RelativeLayout，content_view设置topmargin为menu_layout的高度。
+注意：
+**menu_layout和content_view的父控件使用FrameLayout或RelativeLayout，content_view设置topmargin为menu_layout的高度。**
 
 ```java
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -120,7 +121,9 @@ multipleMenu.setMultipleMenu(initMenuPages());
 ##### 其他方法
 
 `closeMenu();` : 关闭当前打开菜单
+
 `setTabTitle(String text)`：设置当前打开菜单tabtitle
+
 `setTbaTitle(int position, String text)`:设置指定位置tabtitle
 
 
