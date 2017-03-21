@@ -127,6 +127,7 @@ multipleMenu.setMultipleMenu(initMenuPages());
 `setTbaTitle(int position, String text)`:设置指定位置tabtitle
 
 
+### LICENSE
 
 ```
    Copyright 2017 LineChen <15764230067@163.com>
