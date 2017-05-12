@@ -120,13 +120,8 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
             config.dividerColor = ta.getColor(R.styleable.MultipleMenu_mm_dividerColor, 0xffe0e0e0);
             config.maskColor = ta.getColor(R.styleable.MultipleMenu_mm_maskColor, 0x40000000);
             config.tabGravity = ta.getInteger(R.styleable.MultipleMenu_mm_tabGravity, GRAVITY_TOP);
-            if(config.tabGravity == GRAVITY_TOP){
-                config.menuAnimateIn = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateIn, R.anim.scale_in);
-                config.menuAnimateOut = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateOut, R.anim.scale_out);
-            } else {
-                config.menuAnimateIn = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateIn, R.anim.push_bottom_in);
-                config.menuAnimateOut = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateOut, R.anim.push_bottom_out);
-            }
+            config.menuAnimateIn = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateIn, R.anim.scale_in_from_top);
+            config.menuAnimateOut = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateOut, R.anim.scale_out_fom_top);
         } finally {
             ta.recycle();
         }

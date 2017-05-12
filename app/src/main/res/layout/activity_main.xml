@@ -55,8 +55,8 @@
         app:mm_dividerBottommargin="10dp"
         app:mm_dividerColor="#882DB91B"
         app:mm_maskColor="#889a9ae6"
-        app:mm_menuAnimateIn="@anim/scale_in"
-        app:mm_menuAnimateOut="@anim/scale_out">
+        app:mm_menuAnimateIn="@anim/scale_in_from_top"
+        app:mm_menuAnimateOut="@anim/scale_out_fom_top">
     </com.beiing.library.MultipleMenu>
 
 
