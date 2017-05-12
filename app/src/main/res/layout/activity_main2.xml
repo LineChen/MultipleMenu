@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
+        android:padding="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="时间:"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="户型："
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="价格："
+            android:textSize="20sp" />
+
+
+    </LinearLayout>
+
+    <com.beiing.library.MultipleMenu
+        android:id="@+id/multiple_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:mm_tabHolderHeight="50dp"
+        app:mm_underLineHeight="2dp"
+        app:mm_underLineColor="#FF09A63B"
+        app:mm_tabTitleDefaultColor="#FF09A63B"
+        app:mm_tabTitletSelectedColor="#dc0f57"
+        app:mm_tabTitleDefaultSize="15sp"
+        app:mm_tabTitleSelectedSize="16sp"
+        app:mm_tabIconDefault="@mipmap/ic_default"
+        app:mm_tabIconSelected="@mipmap/ic_selected"
+        app:mm_tabIconLeftmargin="10dp"
+        app:mm_dividerWidth="1dp"
+        app:mm_dividerTopmargin="10dp"
+        app:mm_dividerBottommargin="10dp"
+        app:mm_dividerColor="#882DB91B"
+        app:mm_maskColor="#889a9ae6"
+        app:mm_menuAnimateIn="@anim/push_bottom_in"
+        app:mm_menuAnimateOut="@anim/push_bottom_out"
+        app:mm_tabGravity="BOTTOM">
+    </com.beiing.library.MultipleMenu>
+
+
+
+</FrameLayout>

@@ -20,6 +20,10 @@
         <attr name="mm_maskColor" format="color"/>
         <attr name="mm_menuAnimateIn" format="reference"/>
         <attr name="mm_menuAnimateOut" format="reference"/>
+        <attr name="mm_tabGravity" format="integer">
+            <enum name="TOP" value="0"/>
+            <enum name="BOTTOM" value="1"/>
+        </attr>
     </declare-styleable>
 
 </resources>

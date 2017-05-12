@@ -14,8 +14,7 @@ import com.beiing.library.MultipleMenu;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-
+public class Main2Activity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     MultipleMenu multipleMenu;
     TextView tvTime;
     TextView tvStyle;
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main2);
         multipleMenu = (MultipleMenu) findViewById(R.id.multiple_menu);
         tvTime = (TextView) findViewById(R.id.tv_time);
         tvStyle = (TextView) findViewById(R.id.tv_style);
@@ -82,5 +81,4 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             tvPrice.setText("价格:" + prices[position]);
         }
     }
-
 }

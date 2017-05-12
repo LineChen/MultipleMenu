@@ -15,11 +15,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.widget.LinearLayout.HORIZONTAL;
 
 /**
  * Created by chenliu on 2017/3/9.<br/>
@@ -27,7 +29,7 @@ import java.util.List;
  * </br>
  */
 
-public class MultipleMenu extends LinearLayout implements View.OnClickListener {
+public class MultipleMenu extends RelativeLayout implements View.OnClickListener {
 
     /**
      * tab所在layout
@@ -38,6 +40,11 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
      * menu所在layout
      */
     private FrameLayout menuHolderView;
+
+    /**
+     * tabHolderView下划线
+     */
+    private View underLineView;
 
     /**
      * 菜单下部阴影
@@ -71,6 +78,9 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
     private Animation menuOutAnimation;
     private Animation menuInAnimation;
 
+    private static final int GRAVITY_TOP = 0;
+    private static final int GRAVITY_BOTTOM = 1;
+
     public MultipleMenu(Context context) {
         this(context, null, 0);
     }
@@ -81,7 +91,6 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
 
     public MultipleMenu(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setOrientation(VERTICAL);
 
         initAttrs(context, attrs);
 
@@ -110,8 +119,14 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
             config.dividerBottommargin = ta.getDimensionPixelSize(R.styleable.MultipleMenu_mm_dividerBottommargin, dp2px(8));
             config.dividerColor = ta.getColor(R.styleable.MultipleMenu_mm_dividerColor, 0xffe0e0e0);
             config.maskColor = ta.getColor(R.styleable.MultipleMenu_mm_maskColor, 0x40000000);
-            config.menuAnimateIn = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateIn, R.anim.scale_in);
-            config.menuAnimateOut = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateOut, R.anim.scale_out);
+            config.tabGravity = ta.getInteger(R.styleable.MultipleMenu_mm_tabGravity, GRAVITY_TOP);
+            if(config.tabGravity == GRAVITY_TOP){
+                config.menuAnimateIn = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateIn, R.anim.scale_in);
+                config.menuAnimateOut = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateOut, R.anim.scale_out);
+            } else {
+                config.menuAnimateIn = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateIn, R.anim.push_bottom_in);
+                config.menuAnimateOut = ta.getResourceId(R.styleable.MultipleMenu_mm_menuAnimateOut, R.anim.push_bottom_out);
+            }
         } finally {
             ta.recycle();
         }
@@ -120,17 +135,25 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
     private void initView(Context context) {
         //初始化view
         tabHolderView = new LinearLayout(context);
-        tabHolderView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, config.tabHolderHeight));
+        tabHolderView.setId(R.id.mm_tabholder_id);
+        LayoutParams tabHolderParams = new LayoutParams(LayoutParams.MATCH_PARENT, config.tabHolderHeight);
+        tabHolderParams.addRule(config.tabGravity == GRAVITY_TOP ? RelativeLayout.ALIGN_PARENT_TOP :RelativeLayout.ALIGN_PARENT_BOTTOM);
+        tabHolderView.setLayoutParams(tabHolderParams);
         tabHolderView.setOrientation(HORIZONTAL);
         tabHolderView.setGravity(Gravity.CENTER);
         tabHolderView.setBackgroundColor(config.tabHolderColor);
 
-        View underLineView = new View(context);
-        underLineView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, config.underLineHeight));
+        underLineView = new View(context);
+        underLineView.setId(R.id.mm_underline_id);
+        LayoutParams underLineParams = new LayoutParams(LayoutParams.MATCH_PARENT, config.underLineHeight);
+        underLineParams.addRule(config.tabGravity == GRAVITY_TOP ? RelativeLayout.BELOW : RelativeLayout.ABOVE, R.id.mm_tabholder_id);
+        underLineView.setLayoutParams(underLineParams);
         underLineView.setBackgroundColor(config.underLineColor);
 
         menuHolderView = new FrameLayout(context);
-        menuHolderView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        LayoutParams menuHolderParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        menuHolderParams.addRule(config.tabGravity == GRAVITY_TOP ? RelativeLayout.BELOW : RelativeLayout.ABOVE, R.id.mm_underline_id);
+        menuHolderView.setLayoutParams(menuHolderParams);
 
         //添加view
         addView(tabHolderView);
@@ -172,6 +195,12 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         menuHolderView.setVisibility(GONE);
     }
 
+    /**
+     * 添加tab菜单
+     * @param menuTitle
+     * @param inflater
+     * @param position
+     */
     private void addTab(String menuTitle, LayoutInflater inflater, int position) {
         View itemTab = inflater.inflate(R.layout.item_tab_layout, tabHolderView, false);
         ItemTabHolder itemTabHolder = new ItemTabHolder(itemTab, position);
@@ -179,7 +208,7 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
                 .setTitleTextSize(config.tabTitleDefaultSize)
                 .setTitleTextColor(config.tabTitleDefaultColor)
                 .setIconResource(config.tabIconDefault);
-        final LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.leftMargin = config.tabIconLeftmargin;
         itemTabHolder.tvIcon.setLayoutParams(lp);
         itemTab.setTag(itemTabHolder);
@@ -188,9 +217,12 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         tabList.add(itemTab);
     }
 
+    /**
+     * 添加tab菜单间隔线
+     */
     private void addDivider() {
         View view = new View(getContext());
-        final LayoutParams params = new LayoutParams(config.dividerWidth, ViewGroup.LayoutParams.MATCH_PARENT);
+        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(config.dividerWidth, LinearLayout.LayoutParams.MATCH_PARENT);
         params.topMargin = config.dividerTopmargin;
         params.bottomMargin = config.dividerBottommargin;
         view.setLayoutParams(params);
@@ -198,8 +230,14 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
         tabHolderView.addView(view);
     }
 
+    /**
+     * 添加单页菜单
+     * @param menuView
+     */
     private void addMenuView(View menuView) {
-        menuView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = config.tabGravity == GRAVITY_TOP ? Gravity.TOP : Gravity.BOTTOM;
+        menuView.setLayoutParams(params);
         menuView.setVisibility(GONE);
         menuHolderView.addView(menuView);
     }
@@ -414,95 +452,10 @@ public class MultipleMenu extends LinearLayout implements View.OnClickListener {
          */
         int menuAnimateOut;
 
-        public Config setTabHolderColor(int tabHolderColor) {
-            this.tabHolderColor = tabHolderColor;
-            return this;
-        }
-
-        public Config setTabHolderHeight(int tabHolderHeight) {
-            this.tabHolderHeight = tabHolderHeight;
-            return this;
-        }
-
-        public Config setUnderLineHeight(int underLineHeight) {
-            this.underLineHeight = underLineHeight;
-            return this;
-        }
-
-        public Config setUnderLineColor(int underLineColor) {
-            this.underLineColor = underLineColor;
-            return this;
-        }
-
-        public Config setTabTitleDefaultColor(int tabTitleDefaultColor) {
-            this.tabTitleDefaultColor = tabTitleDefaultColor;
-            return this;
-        }
-
-        public Config setTabTitletSelectedColor(int tabTitletSelectedColor) {
-            this.tabTitletSelectedColor = tabTitletSelectedColor;
-            return this;
-        }
-
-        public Config setTabTitleDefaultSize(int tabTitleDefaultSize) {
-            this.tabTitleDefaultSize = tabTitleDefaultSize;
-            return this;
-        }
-
-        public Config setTabTitleSelectedSize(int tabTitleSelectedSize) {
-            this.tabTitleSelectedSize = tabTitleSelectedSize;
-            return this;
-        }
-
-        public Config setTabIconDefault(int tabIconDefault) {
-            this.tabIconDefault = tabIconDefault;
-            return this;
-        }
-
-        public Config setTabIconSelected(int tabIconSelected) {
-            this.tabIconSelected = tabIconSelected;
-            return this;
-        }
-
-        public Config setTabIconLeftmargin(int tabIconLeftmargin) {
-            this.tabIconLeftmargin = tabIconLeftmargin;
-            return this;
-        }
-
-        public Config setDividerWidth(int dividerWidth) {
-            this.dividerWidth = dividerWidth;
-            return this;
-        }
-
-        public Config setDividerTopmargin(int dividerTopmargin) {
-            this.dividerTopmargin = dividerTopmargin;
-            return this;
-        }
-
-        public Config setDividerBottommargin(int dividerBottommargin) {
-            this.dividerBottommargin = dividerBottommargin;
-            return this;
-        }
-
-        public Config setDividerColor(int dividerColor) {
-            this.dividerColor = dividerColor;
-            return this;
-        }
-
-        public Config setMaskColor(int maskColor) {
-            this.maskColor = maskColor;
-            return this;
-        }
-
-        public Config setMenuAnimateIn(int menuAnimateIn) {
-            this.menuAnimateIn = menuAnimateIn;
-            return this;
-        }
-
-        public Config setMenuAnimateOut(int menuAnimateOut) {
-            this.menuAnimateOut = menuAnimateOut;
-            return this;
-        }
+        /**
+         * tabholder显示位置：top  or  bottom
+         */
+        private int tabGravity;
     }
 
     public static class MenuPage{
