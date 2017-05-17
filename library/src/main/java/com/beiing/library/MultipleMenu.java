@@ -1,5 +1,7 @@
 package com.beiing.library;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
@@ -150,14 +152,16 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
         menuHolderParams.addRule(config.tabGravity == GRAVITY_TOP ? RelativeLayout.BELOW : RelativeLayout.ABOVE, R.id.mm_underline_id);
         menuHolderView.setLayoutParams(menuHolderParams);
 
+        maskView = new View(context);
+        maskView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        maskView.setBackgroundColor(config.maskColor);
+        maskView.setOnClickListener(this);
+        addView(maskView);
+
         //添加view
         addView(tabHolderView);
         addView(underLineView);
         addView(menuHolderView);
-
-        maskView = new View(context);
-        maskView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        maskView.setBackgroundColor(config.maskColor);
     }
 
     private void initAnimation(Context context) {
@@ -172,9 +176,6 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
 
         this.menuPages = menuPages;
         tabList = new ArrayList<>(menuPages.size());
-
-        maskView.setOnClickListener(this);
-        menuHolderView.addView(maskView);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         for (int i = 0, size = menuPages.size(); i < size; i++) {
@@ -265,7 +266,7 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
             }
 
             //动画退出
-            final View menuView = menuHolderView.getChildAt(currentPosition + 1);
+            final View menuView = menuHolderView.getChildAt(currentPosition);
             menuOutAnimation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
@@ -287,7 +288,10 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
 
             menuHolderView.startAnimation(menuOutAnimation);
             currentPosition = INVALID_POSITION;
+            changeMaskView(0.8f, 0);
         }
+
+
     }
 
     /**
@@ -314,9 +318,22 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
         //动画进入
         menuHolderView.setVisibility(VISIBLE);
         maskView.setVisibility(VISIBLE);
-        menuHolderView.getChildAt(position + 1).setVisibility(VISIBLE);
+        menuHolderView.getChildAt(position).setVisibility(VISIBLE);
         menuHolderView.startAnimation(menuInAnimation);
         currentPosition = position;
+
+        changeMaskView(0, 0.8f);
+    }
+
+    private void changeMaskView(float alpha1, float alpha2) {
+        ValueAnimator valueAnimator = ObjectAnimator.ofFloat(alpha1, alpha2).setDuration(menuInAnimation.getDuration());
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                maskView.setAlpha((Float) animation.getAnimatedValue());
+            }
+        });
+        valueAnimator.start();
     }
 
     /**
