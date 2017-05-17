@@ -288,7 +288,7 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
 
             menuHolderView.startAnimation(menuOutAnimation);
             currentPosition = INVALID_POSITION;
-            changeMaskView(0.8f, 0);
+            changeMaskView(1f, 0);
         }
 
 
@@ -322,7 +322,7 @@ public class MultipleMenu extends RelativeLayout implements View.OnClickListener
         menuHolderView.startAnimation(menuInAnimation);
         currentPosition = position;
 
-        changeMaskView(0, 0.8f);
+        changeMaskView(0, 1f);
     }
 
     private void changeMaskView(float alpha1, float alpha2) {
